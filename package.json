@@ -1,13 +1,14 @@
 {
+  "homepage": "https://govind-10090.github.io/FreeManhwa",
   "name": "manhwa-reader",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://govind-10090.github.io/FreeManhwa",
+  
   "scripts": {
     "start": "webpack serve --mode development --open",
+    "predeploy": "npm run build",
     "build": "webpack --mode production",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
