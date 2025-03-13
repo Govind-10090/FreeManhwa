@@ -9,6 +9,9 @@ const faviconExists = fs.existsSync(faviconPath);
 // Determine if we're in development or production
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
+// Define public URL based on environment
+const publicUrl = isDevelopment ? '' : '/FreeManhwa';
+
 module.exports = {
   mode: isDevelopment ? 'development' : 'production',
   entry: './src/index.js',
@@ -49,6 +52,20 @@ module.exports = {
         generator: {
           filename: 'static/[name][ext]'
         }
+      },
+      {
+        test: /\.(json)$/,
+        type: 'asset/source',
+        generator: {
+          filename: '[name][ext]'
+        },
+        use: {
+          loader: 'string-replace-loader',
+          options: {
+            search: '%PUBLIC_URL%',
+            replace: publicUrl
+          }
+        }
       }
     ]
   },
@@ -58,7 +75,10 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'public', 'index.html'),
-      ...(faviconExists && { favicon: faviconPath })
+      ...(faviconExists && { favicon: faviconPath }),
+      templateParameters: {
+        publicUrl
+      }
     })
   ],
   devServer: {
