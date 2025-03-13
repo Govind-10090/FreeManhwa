@@ -8,7 +8,9 @@
     "predeploy": "npm run build",
     "build": "set NODE_ENV=production && webpack",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "firebase-build": "npm run build",
+    "firebase-deploy": "firebase deploy --only hosting"
   },
   "dependencies": {
     "@firebasegen/default-connector": "file:dataconnect-generated/js/default-connector",
