@@ -52,6 +52,13 @@ module.exports = {
         generator: {
           filename: 'static/[name][ext]'
         }
+      },
+      {
+        test: /manifest\.json$/,
+        type: 'asset/resource',
+        generator: {
+          filename: '[name][ext]'
+        }
       }
     ]
   },
