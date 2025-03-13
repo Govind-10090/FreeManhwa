@@ -55,9 +55,16 @@ module.exports = {
       },
       {
         test: /manifest\.json$/,
-        type: 'asset/resource',
+        type: 'asset/source',
         generator: {
           filename: '[name][ext]'
+        },
+        use: {
+          loader: 'string-replace-loader',
+          options: {
+            search: '%PUBLIC_URL%',
+            replace: publicUrl
+          }
         }
       }
     ]
