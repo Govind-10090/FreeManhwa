@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, HashRouter } from 'react-router-dom';
+import { Routes, Route, HashRouter, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Categories from './pages/Categories';
@@ -20,6 +20,7 @@ export default function App() {
                     <Route path="/search" element={<SearchResults />} />
                     <Route path="/favorites" element={<Favorites />} />
                     <Route path="/read/:chapterId" element={<ChapterReader />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
             </div>
         </HashRouter>
