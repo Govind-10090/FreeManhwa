@@ -13,7 +13,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
     clean: true,
-    publicPath: process.env.NODE_ENV === 'production' ? '/FreeManhwa/' : '/'
+    publicPath: '/FreeManhwa/'
   },
   module: {
     rules: [
@@ -42,10 +42,7 @@ module.exports = {
       },
       {
         test: /\.(png|svg|jpg|jpeg|gif|ico)$/i,
-        type: 'asset/resource',
-        generator: {
-          filename: 'static/[name][ext]'
-        }
+        type: 'asset/resource'
       }
     ]
   },
