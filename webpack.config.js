@@ -52,20 +52,6 @@ module.exports = {
         generator: {
           filename: 'static/[name][ext]'
         }
-      },
-      {
-        test: /\.(json)$/,
-        type: 'asset/source',
-        generator: {
-          filename: '[name][ext]'
-        },
-        use: {
-          loader: 'string-replace-loader',
-          options: {
-            search: '%PUBLIC_URL%',
-            replace: publicUrl
-          }
-        }
       }
     ]
   },
