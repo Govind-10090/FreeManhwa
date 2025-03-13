@@ -2,10 +2,13 @@
   "name": "manhwa-reader",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://govind-10090.github.io/FreeManhwa",
   "scripts": {
     "start": "webpack serve --mode development --open",
     "build": "webpack --mode production",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@firebasegen/default-connector": "file:dataconnect-generated/js/default-connector",
@@ -24,6 +27,7 @@
     "autoprefixer": "^10.4.18",
     "babel-loader": "^9.1.3",
     "css-loader": "^6.10.0",
+    "gh-pages": "^6.3.0",
     "html-webpack-plugin": "^5.6.0",
     "postcss": "^8.4.35",
     "postcss-loader": "^8.1.1",
