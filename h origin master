@@ -1,0 +1,5 @@
+[33m2be9785[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m Fix asset paths and routing for GitHub Pages
+[33me592876[m Update asset paths to use relative paths
+[33mbfbdec9[m Fix asset paths for GitHub Pages deployment
+[33m52cb438[m Update deployment configuration
+[33m0bce28b[m Fix asset loading and null style errors

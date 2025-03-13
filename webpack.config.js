@@ -6,14 +6,17 @@ const fs = require('fs');
 const faviconPath = path.resolve(__dirname, 'public', 'favicon.ico');
 const faviconExists = fs.existsSync(faviconPath);
 
+// Determine if we're in development or production
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
 module.exports = {
-  mode: 'development',
+  mode: isDevelopment ? 'development' : 'production',
   entry: './src/index.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
     clean: true,
-    publicPath: '/FreeManhwa/'
+    publicPath: isDevelopment ? '/' : '/FreeManhwa/'
   },
   module: {
     rules: [
