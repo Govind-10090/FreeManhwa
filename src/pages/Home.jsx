@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useDarkMode } from '../context/DarkModeContext';
 import ManhuaCard from '../components/ManhuaCard';
-import { fetchTrendingManhwa, fetchLatestManhwa } from '../utils/api';
+import { fetchTrendingManhwa, fetchLatestManhwa, getCoverUrl } from '../utils/api';
 
 export default function Home() {
     const { isDarkMode } = useDarkMode();
@@ -34,12 +34,10 @@ export default function Home() {
 
             const processedManhwa = mangaData.data.map(manga => {
                 const coverFile = manga.relationships.find(rel => rel.type === 'cover_art')?.attributes?.fileName;
-                const coverUrl = coverFile ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFile}` : null;
-
                 return {
                     id: manga.id,
                     title: manga.attributes.title.en || Object.values(manga.attributes.title)[0],
-                    coverUrl,
+                    coverFile,
                     rating: manga.attributes.rating?.average || 'N/A',
                     status: manga.attributes.status,
                     followCount: manga.attributes.followedCount || 0

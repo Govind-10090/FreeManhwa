@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { fetchManhua } from '../utils/api';
 import { useDarkMode } from '../context/DarkModeContext';
+import { fetchManhua, getCoverUrl } from '../utils/api';
 
 export default function SearchResults() {
     const [searchParams] = useSearchParams();
-    const query = searchParams.get('q');
+    const query = searchParams.get('q') || '';
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -13,28 +13,36 @@ export default function SearchResults() {
 
     useEffect(() => {
         const searchManhwa = async () => {
+            if (!query) {
+                setResults([]);
+                setLoading(false);
+                return;
+            }
+
             try {
                 setLoading(true);
                 setError(null);
                 const response = await fetchManhua(query);
                 setResults(response.data.data);
             } catch (err) {
-                console.error('Error searching manhwa:', err);
+                console.error('Search error:', err);
                 setError('Failed to search manhwa. Please try again later.');
             } finally {
                 setLoading(false);
             }
         };
 
-        if (query) {
-            searchManhwa();
-        }
+        searchManhwa();
     }, [query]);
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-4 border-accent border-t-transparent"></div>
+            <div className={`min-h-screen pt-20 pb-12 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-800'}`}>
+                <div className="container mx-auto px-4">
+                    <div className="flex justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+                    </div>
+                </div>
             </div>
         );
     }
@@ -72,7 +80,7 @@ export default function SearchResults() {
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
                         {results.map((manhwa) => {
                             const coverFile = manhwa.relationships.find(rel => rel.type === 'cover_art')?.attributes?.fileName;
-                            const coverUrl = coverFile ? `https://uploads.mangadex.org/covers/${manhwa.id}/${coverFile}` : null;
+                            const coverUrl = getCoverUrl(manhwa.id, coverFile);
 
                             return (
                                 <Link

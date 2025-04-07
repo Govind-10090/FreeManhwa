@@ -10,6 +10,13 @@ const api = axios.create({
     }
 });
 
+// Helper function to get cover URL
+export const getCoverUrl = (mangaId, fileName) => {
+    if (!fileName) return null;
+    // Use the MangaDex CDN URL
+    return `https://mangadex.org/covers/${mangaId}/${fileName}`;
+};
+
 export const fetchManhua = async (query) => {
     try {
         const response = await api.get('/manga', { 

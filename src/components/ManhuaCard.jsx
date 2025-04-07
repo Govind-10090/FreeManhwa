@@ -2,11 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useDarkMode } from '../context/DarkModeContext';
 import { useFavorites } from '../context/FavoritesContext';
+import { getCoverUrl } from '../utils/api';
 
 export default function ManhuaCard({ manga }) {
     const { isDarkMode } = useDarkMode();
     const { isFavorite, addFavorite, removeFavorite } = useFavorites();
     const isInFavorites = isFavorite(manga.id);
+    const coverUrl = getCoverUrl(manga.id, manga.coverFile);
 
     const handleFavoriteClick = (e) => {
         e.preventDefault(); // Prevent navigation when clicking the favorite button
@@ -38,7 +40,7 @@ export default function ManhuaCard({ manga }) {
                 {/* Cover Image */}
                 <div className="relative aspect-[2/3]">
                     <img
-                        src={manga.coverUrl}
+                        src={coverUrl}
                         alt={manga.title}
                         className="w-full h-full object-cover"
                         loading="lazy"

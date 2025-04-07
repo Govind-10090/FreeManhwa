@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams, Link } from 'react-router-dom';
-import { fetchManhwaByCategory } from '../utils/api';
+import { fetchManhwaByCategory, getCoverUrl } from '../utils/api';
 import { useDarkMode } from '../context/DarkModeContext';
 
 const categories = {
@@ -47,20 +47,18 @@ export default function CategoryPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="animate-spin rounded-full h-16 w-16 border-4 border-accent border-t-transparent"></div>
+            <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-800'}`}>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-800'}`}>
                 <div className="text-center">
                     <p className="text-xl text-red-500 mb-4">{error}</p>
-                    <Link to="/" className="text-accent hover:underline">
-                        Return to Home
-                    </Link>
+                    <Link to="/" className="text-accent hover:underline">Return to Home</Link>
                 </div>
             </div>
         );
@@ -106,7 +104,7 @@ export default function CategoryPage() {
                     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
                         {manhwa.map((item) => {
                             const coverFile = item.relationships.find(rel => rel.type === 'cover_art')?.attributes?.fileName;
-                            const coverUrl = coverFile ? `https://uploads.mangadex.org/covers/${item.id}/${coverFile}` : null;
+                            const coverUrl = getCoverUrl(item.id, coverFile);
 
                             return (
                                 <Link
