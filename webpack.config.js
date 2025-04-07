@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const fs = require('fs');
 
 // Check if favicon exists
@@ -9,9 +10,6 @@ const faviconExists = fs.existsSync(faviconPath);
 // Determine if we're in development or production
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
-// Define public URL based on environment
-const publicUrl = isDevelopment ? '' : '/FreeManhwa';
-
 module.exports = {
   mode: isDevelopment ? 'development' : 'production',
   entry: './src/index.js',
@@ -19,7 +17,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
     clean: true,
-    publicPath: isDevelopment ? '/' : '/FreeManhwa/'
+    publicPath: '/'
   },
   module: {
     rules: [
@@ -50,7 +48,7 @@ module.exports = {
         test: /\.(png|svg|jpg|jpeg|gif|ico)$/i,
         type: 'asset/resource',
         generator: {
-          filename: 'static/[name][ext]'
+          filename: '[name][ext]'
         }
       },
       {
@@ -58,13 +56,6 @@ module.exports = {
         type: 'asset/source',
         generator: {
           filename: '[name][ext]'
-        },
-        use: {
-          loader: 'string-replace-loader',
-          options: {
-            search: '%PUBLIC_URL%',
-            replace: publicUrl
-          }
         }
       }
     ]
@@ -75,10 +66,18 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'public', 'index.html'),
-      ...(faviconExists && { favicon: faviconPath }),
-      templateParameters: {
-        publicUrl
-      }
+      ...(faviconExists && { favicon: faviconPath })
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'public',
+          to: '',
+          globOptions: {
+            ignore: ['**/index.html']
+          }
+        }
+      ]
     })
   ],
   devServer: {
@@ -88,6 +87,13 @@ module.exports = {
     hot: true,
     port: 3000,
     historyApiFallback: true,
-    open: true
+    open: true,
+    proxy: [{
+      context: ['/api'],
+      target: 'https://api.mangadex.org',
+      pathRewrite: { '^/api': '' },
+      changeOrigin: true,
+      secure: false
+    }]
   }
 }; 

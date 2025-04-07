@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { useDarkMode } from '../context/DarkModeContext';
+import { fetchManhua } from '../utils/api';
 
 export default function Search() {
     const { isDarkMode } = useDarkMode();
@@ -33,21 +33,9 @@ export default function Search() {
             setLoading(true);
             searchTimeoutRef.current = setTimeout(async () => {
                 try {
-                    const response = await axios.get('https://api.mangadex.org/manga', {
-                        params: {
-                            title: query,
-                            limit: 5,
-                            contentRating: ['safe', 'suggestive'],
-                            originalLanguage: ['ko'],
-                            includes: ['cover_art'],
-                            order: {
-                                relevance: 'desc'
-                            }
-                        }
-                    });
-
+                    const response = await fetchManhua(query);
                     const processedResults = await Promise.all(
-                        response.data.data.map(async (manga) => {
+                        response.data.map(async (manga) => {
                             const coverFile = manga.relationships.find(rel => rel.type === 'cover_art')?.attributes?.fileName;
                             return {
                                 id: manga.id,
@@ -87,53 +75,74 @@ export default function Search() {
     };
 
     return (
-        <div className="relative" ref={searchRef}>
-            <form onSubmit={handleSearch} className="flex items-center">
-                <div className="relative w-full">
-                    <input
-                        type="text"
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Search manhwa..."
-                        className={`w-full px-4 py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-red-500 
-                            ${isDarkMode 
-                                ? 'bg-gray-800 text-white placeholder-gray-400' 
-                                : 'bg-white text-gray-900 placeholder-gray-500'}`}
-                    />
-                    {loading && (
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-500"></div>
-                        </div>
-                    )}
-                </div>
+        <div ref={searchRef} className="relative">
+            <form onSubmit={handleSearch} className="relative">
+                <input
+                    type="text"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search manhwa..."
+                    className={`w-full px-4 py-2 rounded-lg border ${
+                        isDarkMode 
+                            ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-400' 
+                            : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                    } focus:outline-none focus:ring-2 focus:ring-accent`}
+                />
+                <button
+                    type="submit"
+                    className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-2 rounded-lg ${
+                        isDarkMode 
+                            ? 'text-gray-400 hover:text-white' 
+                            : 'text-gray-500 hover:text-gray-700'
+                    }`}
+                >
+                    🔍
+                </button>
             </form>
 
-            {showDropdown && results.length > 0 && (
-                <div className={`absolute z-50 w-full mt-2 rounded-lg shadow-lg overflow-hidden
-                    ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                    {results.map(result => (
-                        <div
-                            key={result.id}
-                            onClick={() => {
-                                navigate(`/manhwa/${result.id}`);
-                                setShowDropdown(false);
-                                setQuery('');
-                            }}
-                            className={`flex items-center p-3 cursor-pointer hover:bg-red-500 hover:text-white
-                                ${isDarkMode ? 'text-white hover:bg-opacity-50' : 'text-gray-900'}`}
-                        >
-                            {result.coverUrl && (
-                                <img
-                                    src={result.coverUrl}
-                                    alt={result.title}
-                                    className="w-10 h-14 object-cover rounded mr-3"
-                                />
-                            )}
-                            <div className="flex-1">
-                                <p className="line-clamp-2 text-sm">{result.title}</p>
-                            </div>
+            {/* Search Results Dropdown */}
+            {showDropdown && (query.length >= 2) && (
+                <div className={`absolute top-full left-0 right-0 mt-2 rounded-lg shadow-lg overflow-hidden z-50 ${
+                    isDarkMode 
+                        ? 'bg-gray-800 border border-gray-700' 
+                        : 'bg-white border border-gray-200'
+                }`}>
+                    {loading ? (
+                        <div className="p-4 text-center">
+                            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-accent mx-auto"></div>
                         </div>
-                    ))}
+                    ) : results.length > 0 ? (
+                        <div className="max-h-96 overflow-y-auto">
+                            {results.map((manga) => (
+                                <Link
+                                    key={manga.id}
+                                    to={`/manga/${manga.id}`}
+                                    className={`flex items-center p-3 hover:bg-accent/10 transition-colors ${
+                                        isDarkMode ? 'text-white' : 'text-gray-900'
+                                    }`}
+                                    onClick={() => {
+                                        setShowDropdown(false);
+                                        setQuery('');
+                                    }}
+                                >
+                                    {manga.coverUrl && (
+                                        <img
+                                            src={manga.coverUrl}
+                                            alt={manga.title}
+                                            className="w-12 h-16 object-cover rounded mr-3"
+                                        />
+                                    )}
+                                    <span className="truncate">{manga.title}</span>
+                                </Link>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className={`p-4 text-center ${
+                            isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                        }`}>
+                            No results found
+                        </div>
+                    )}
                 </div>
             )}
         </div>

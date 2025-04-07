@@ -2,11 +2,11 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
-import Categories from './pages/Categories';
+import Categories from './components/Categories';
 import Favorites from './pages/Favorites';
 import ManhuaDetails from './pages/ManhuaDetails';
-import ChapterReader from './components/ChapterReader';
 import SearchResults from './pages/SearchResults';
+import CategoryPage from './pages/CategoryPage';
 
 export default function App() {
     return (
@@ -15,10 +15,10 @@ export default function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/categories" element={<Categories />} />
+                <Route path="/category/:categoryId" element={<CategoryPage />} />
                 <Route path="/manga/:id" element={<ManhuaDetails />} />
                 <Route path="/search" element={<SearchResults />} />
                 <Route path="/favorites" element={<Favorites />} />
-                <Route path="/read/:chapterId" element={<ChapterReader />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
         </div>

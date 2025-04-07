@@ -5,7 +5,7 @@ import { FavoritesProvider } from '../context/FavoritesContext';
 
 function AppProviders({ children }) {
     return (
-        <Router>
+        <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <DarkModeProvider>
                 <FavoritesProvider>
                     {children}

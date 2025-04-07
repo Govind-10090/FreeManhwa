@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
-import axios from 'axios';
 import { useDarkMode } from '../context/DarkModeContext';
 import ManhuaCard from '../components/ManhuaCard';
 import { categories, sortOptions } from '../data/categories';
+import { fetchManhwaByCategory } from '../utils/api';
 
 export default function Categories() {
     const { isDarkMode } = useDarkMode();
@@ -36,28 +36,10 @@ export default function Categories() {
                 .map(catId => categories.find(c => c.id === catId)?.tagId)
                 .filter(Boolean);
 
-            const params = {
-                limit: LIMIT,
-                offset: isLoadMore ? offset : 0,
-                contentRating: ['safe', 'suggestive'],
-                originalLanguage: ['ko'],
-                includes: ['cover_art'],
-                order: {
-                    [sortBy === 'latest' ? 'updatedAt' : 
-                     sortBy === 'rating' ? 'rating' :
-                     sortBy === 'trending' ? 'followedCount' : 'title']: 'desc'
-                },
-                hasAvailableChapters: true
-            };
-
-            if (selectedTagIds.length > 0) {
-                params.includedTags = selectedTagIds;
-            }
-
-            const response = await axios.get('https://api.mangadex.org/manga', { params });
+            const response = await fetchManhwaByCategory(selectedTagIds, sortBy, isLoadMore ? offset : 0, LIMIT);
             
             const processedManhwa = await Promise.all(
-                response.data.data.map(async (manga) => {
+                response.data.map(async (manga) => {
                     const coverFile = manga.relationships.find(rel => rel.type === 'cover_art')?.attributes?.fileName;
                     const coverUrl = coverFile ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFile}` : null;
 
@@ -81,7 +63,7 @@ export default function Categories() {
             }
 
             setOffset(isLoadMore ? offset + LIMIT : LIMIT);
-            setHasMore(response.data.data.length === LIMIT);
+            setHasMore(response.data.length === LIMIT);
         } catch (err) {
             setError('Failed to fetch manhwa. Please try again later.');
             console.error('Error fetching manhwa:', err);

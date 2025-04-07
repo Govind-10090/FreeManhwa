@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import axios from 'axios';
 import { useDarkMode } from '../context/DarkModeContext';
 import ManhuaCard from '../components/ManhuaCard';
+import { fetchTrendingManhwa, fetchLatestManhwa } from '../utils/api';
 
 export default function Home() {
     const { isDarkMode } = useDarkMode();
@@ -19,35 +19,32 @@ export default function Home() {
         try {
             setLoading(true);
             console.log(`Fetching ${type} manhwa...`);
-            const response = await axios.get('https://api.mangadex.org/manga', {
-                params: {
-                    limit: type === 'trending' ? 10 : LIMIT,
-                    offset: type === 'latest' && isLoadMore ? offset : 0,
-                    contentRating: ['safe', 'suggestive'],
-                    originalLanguage: ['ko'],
-                    includes: ['cover_art'],
-                    order: {
-                        [type === 'trending' ? 'followedCount' : 'updatedAt']: 'desc'
-                    },
-                    hasAvailableChapters: true
-                }
+            
+            let response;
+            if (type === 'trending') {
+                response = await fetchTrendingManhwa();
+            } else {
+                response = await fetchLatestManhwa(isLoadMore ? offset : 0, LIMIT);
+            }
+
+            const mangaData = response.data;
+            if (!mangaData || !Array.isArray(mangaData.data)) {
+                throw new Error('Invalid manga data received');
+            }
+
+            const processedManhwa = mangaData.data.map(manga => {
+                const coverFile = manga.relationships.find(rel => rel.type === 'cover_art')?.attributes?.fileName;
+                const coverUrl = coverFile ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFile}` : null;
+
+                return {
+                    id: manga.id,
+                    title: manga.attributes.title.en || Object.values(manga.attributes.title)[0],
+                    coverUrl,
+                    rating: manga.attributes.rating?.average || 'N/A',
+                    status: manga.attributes.status,
+                    followCount: manga.attributes.followedCount || 0
+                };
             });
-
-            const processedManhwa = await Promise.all(
-                response.data.data.map(async (manga) => {
-                    const coverFile = manga.relationships.find(rel => rel.type === 'cover_art')?.attributes?.fileName;
-                    const coverUrl = coverFile ? `https://uploads.mangadex.org/covers/${manga.id}/${coverFile}` : null;
-
-                    return {
-                        id: manga.id,
-                        title: manga.attributes.title.en || Object.values(manga.attributes.title)[0],
-                        coverUrl,
-                        rating: manga.attributes.rating?.average || 'N/A',
-                        status: manga.attributes.status,
-                        followCount: manga.attributes.followedCount || 0
-                    };
-                })
-            );
             
             if (type === 'trending') {
                 setTrendingManhwas(processedManhwa);
@@ -58,7 +55,7 @@ export default function Home() {
                     setLatestManhwas(processedManhwa);
                 }
                 setOffset(isLoadMore ? offset + LIMIT : LIMIT);
-                setHasMore(response.data.data.length === LIMIT);
+                setHasMore(processedManhwa.length === LIMIT);
             }
         } catch (err) {
             console.error('Detailed error:', err.response || err);
